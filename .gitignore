@@ -313,3 +313,9 @@ TSWLatexianTemp*
 # Uncomment the next line to have this generated file ignored.
 #*Notes.bib
 
+.idea
+
+cmake-build-debug
+
+build/*
+
