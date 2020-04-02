@@ -17,10 +17,10 @@ find_package (Threads)
 
 file(GLOB_RECURSE CLIENT_SOURCES "src/client/*.cpp")
 add_executable(client ${CLIENT_SOURCES})
-target_include_directories(client PRIVATE include/client)
+target_include_directories(client PRIVATE include)
 target_link_libraries (client ${CMAKE_THREAD_LIBS_INIT})
 
 file(GLOB_RECURSE SERVER_SOURCES "src/server/*.cpp")
 add_executable(server ${SERVER_SOURCES})
-target_include_directories(server PRIVATE include/server)
+target_include_directories(server PRIVATE include)
 target_link_libraries (server ${CMAKE_THREAD_LIBS_INIT})

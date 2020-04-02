@@ -2,18 +2,10 @@
 #include <cstring>
 #include <asio.hpp>
 
+#include "bit_operations.h"
+
 using namespace std;
-
-char* xor_string(char a[], char b[], unsigned int len=280) {
-    char* output = new char[len];
-
-    for (int i{}; i < len - 1; i++) {
-        char tmp = a[i] ^ b[i];
-        output[i] = tmp;
-    }
-    output[len - 1] = '\0';
-    return output;
-}
+using namespace asio::ip;
 
 int main() {
     char a[280] = "Will be starting The White House news conference at 5:15 P.M. Eastern.";
@@ -23,12 +15,25 @@ int main() {
     char* output{xor_string(a, b)};
     output = xor_string(output, c);
 
-    cout << output << endl;
+    asio::io_context ctx;
+    tcp::endpoint ep{tcp::v4(), 1234};
+    cout << "connection openend" << endl;
+    tcp::acceptor acceptor{ctx, ep};
+    cout << "listening" << endl;
+    acceptor.listen();
 
-    output = xor_string(output, a);
-    output = xor_string(output, c);
+    tcp::socket sock{ctx};
+    acceptor.accept(sock);
+    tcp::iostream strm{std::move(sock)};
 
-    cout << output << endl;
+    if (strm) {
+        cout << "sending" << endl;
+        strm << output << endl;
+        strm.close();
+    } else {
+        cout << "could not open stream" << endl;
+    }
+    cout << "connection closed" << endl;
     delete output;
 
     return 0;
