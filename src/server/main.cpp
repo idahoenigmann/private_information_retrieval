@@ -12,6 +12,10 @@ int main() {
     char b[280] = "My proposal to the politically correct Automobile Companies would lower the average price of a car to consumers by more than $3500, while at the same time making the cars substantially safer. Engines would run smoother. Positive impact on the environment! Foolish executives!";
     char c[280] = "My Administration is helping U.S. auto workers by replacing the failed Obama Emissions Rule. Impossible to satisfy its Green New Deal Standard; Lots of unnecessary and expensive penalties to car buyers!";
 
+    cleanup_char_arr(a);
+    cleanup_char_arr(b);
+    cleanup_char_arr(c);
+
     char* output{xor_string(a, b)};
     output = xor_string(output, c);
 
