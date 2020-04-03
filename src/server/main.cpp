@@ -16,9 +16,18 @@ int main(int argc, char* argv[]) {
     CLI::App app{"Private Information Retrieval Server"};
 
     unsigned short port;
+    bool verbose{false};
+
     app.add_option("-p,--port", port, "Port on which to send data on")->required(true);
+    app.add_flag("-v,--verbose", verbose, "Print additional debug messages");
 
     CLI11_PARSE(app, argc, argv);
+
+    if (verbose) {
+        spdlog::set_level(spdlog::level::debug);
+    } else {
+        spdlog::set_level(spdlog::level::info);
+    }
 
     vector<char*> v;
 
@@ -38,13 +47,13 @@ int main(int argc, char* argv[]) {
     }
     ifstrm.close();
 
-    spdlog::info("loaded {} messages", v.size());
+    spdlog::debug("loaded {} messages", v.size());
 
     asio::io_context ctx;
     tcp::endpoint ep{tcp::v4(), port};
-    spdlog::info("connection opened");
+    spdlog::debug("connection opened");
     tcp::acceptor acceptor{ctx, ep};
-    spdlog::info("listening");
+    spdlog::debug("listening");
     acceptor.listen();
 
     tcp::socket sock{ctx};
@@ -72,14 +81,14 @@ int main(int argc, char* argv[]) {
             int message_idx = stoi(data.substr(start, end - start));
             output = xor_string(output, v.at(message_idx));
         }
-        spdlog::info("sending {}", data);
+        spdlog::debug("sending {}", data);
         strm.write(output, message_len);
         delete output;
         strm.close();
     } else {
         spdlog::error("could not open stream");
     }
-    spdlog::info("connection closed");
+    spdlog::debug("connection closed");
 
     return 0;
 }

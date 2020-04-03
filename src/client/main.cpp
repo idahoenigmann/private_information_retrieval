@@ -18,16 +18,23 @@ int main(int argc, char* argv[]) {
     unsigned short message_idx;
     unsigned int port1{1234};
     unsigned int port2{1235};
+    bool verbose{false};
 
     app.add_option("-i,--index", message_idx, "Index of the message to retrieve")->required(true);
     app.add_option("-p,--port1", port1, "First port of the server from which to retrieve messages");
     app.add_option("-q,--port2", port2, "Second port of the server from which to retrieve messages");
+    app.add_flag("-v,--verbose", verbose, "Print additional debug messages");
 
     CLI11_PARSE(app, argc, argv);
 
+    if (verbose) {
+        spdlog::set_level(spdlog::level::debug);
+    } else {
+        spdlog::set_level(spdlog::level::info);
+    }
+
     vector<const char*> answers;
 
-    // first element gets retrieved
     vector<int> idx{message_idx};
 
     random_device seeder;
@@ -51,7 +58,7 @@ int main(int argc, char* argv[]) {
     for (const string& port : ports) {
         tcp::iostream strm{"localhost", port};
         if (strm) {
-            spdlog::info("connection to localhost:{} created", port);
+            spdlog::debug("connection to localhost:{} created", port);
 
             std::stringstream ss;
             size_t i{0};
@@ -73,13 +80,13 @@ int main(int argc, char* argv[]) {
                 data.append(buffer, sizeof(buffer));
             }
             data.append(buffer, strm.gcount());
-            spdlog::info("received data");
+            spdlog::debug("received data");
 
             char* answer = new char[message_len + 1];
             memcpy(answer, data.c_str(), message_len + 1);
             answers.push_back(answer);
             strm.close();
-            spdlog::info("connection closed");
+            spdlog::debug("connection closed");
         } else {
             spdlog::error("Could not connect to server!");
             exit(1);
