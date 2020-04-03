@@ -28,11 +28,12 @@ int main(int argc, char* argv[]) {
     app.add_option("-p,--port1", port1, "First port of the server from which to retrieve messages");
     app.add_option("-s,--server1", server1, "First IP address of the server from which to retrieve messages");
     auto port2_option = app.add_option("-q,--port2", port2, "Second port of the server from which to retrieve messages");
-    app.add_option("-t,--server2", server2, "Second IP address of the server from which to retrieve messages");
+    auto server2_option = app.add_option("-t,--server2", server2, "Second IP address of the server from which to retrieve messages");
     app.add_flag("-v,--verbose", verbose, "Print additional debug messages");
 
     list_option->excludes(index_option);
     list_option->excludes(port2_option);
+    list_option->excludes(server2_option);
 
     CLI11_PARSE(app, argc, argv);
 
