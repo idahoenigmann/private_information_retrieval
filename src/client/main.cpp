@@ -1,7 +1,9 @@
 #include <iostream>
 #include <asio.hpp>
-
+#include <CLI11.hpp>
 #include <spdlog/spdlog.h>
+#include <random>
+#include <algorithm>
 
 #include "bit_operations.h"
 
@@ -10,11 +12,30 @@ using namespace asio::ip;
 
 unsigned int message_len{280};
 
-int main() {
+int main(int argc, char* argv[]) {
+    CLI::App app{"privately retrieve messages"};
+
+    unsigned short message_idx;
+    app.add_option("-i,--index", message_idx, "Index of the message to retrieve")->required(true);
+
+    CLI11_PARSE(app, argc, argv);
+
     vector<const char*> answers;
 
     // first element gets retrieved
-    vector<int> idx{5, 11, 8};
+    vector<int> idx{message_idx};
+
+    for (int i{}; i < 3; i++) {
+        int num{message_idx};
+        while (find(idx.begin(), idx.end(), num) != idx.end()) {
+            random_device seeder;
+            mt19937 engine(seeder());
+            uniform_int_distribution<int> dist(0, 11);
+            num = dist(engine);
+        }
+        idx.push_back(num);
+    }
+
     vector<string> ports{"1234", "1235"};
 
     bool first_server{true};

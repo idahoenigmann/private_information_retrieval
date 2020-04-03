@@ -3,7 +3,6 @@
 #include <asio.hpp>
 #include <vector>
 #include <CLI11.hpp>
-
 #include <spdlog/spdlog.h>
 
 #include "bit_operations.h"
