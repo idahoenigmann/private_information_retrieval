@@ -1,5 +1,6 @@
 #include <iostream>
 #include <asio.hpp>
+#include <memory.h>
 
 #include "bit_operations.h"
 
@@ -41,10 +42,18 @@ int main() {
             cout << port << ": " << ss.str() << endl;
             strm << ss.str() << endl;
             string data;
-            //strm.read(data, 280);
-            getline(strm, data);
+            char buffer[280];
+
+            while (strm.read(buffer, sizeof(buffer))) {
+                data.append(buffer, sizeof(buffer));
+            }
+            data.append(buffer, strm.gcount());
             cout << "received data" << endl;
-            answers.push_back(data.c_str());
+
+            char* answer = new char[280];
+            memcpy(answer, data.c_str(), 280);
+            answers.push_back(answer);
+            cout.write(data.c_str(), 280);
             strm.close();
             cout << "connection closed" << endl;
         } else {
@@ -55,11 +64,17 @@ int main() {
     char* output;
     output = xor_string(answers.at(0), answers.at(1));
     for (int i{2}; i < answers.size(); i++) {
+        cout << "Entering " << i << endl;
         output = xor_string(output, answers.at(i));
     }
 
-    cout << "output: " << output << endl;
+    cout << "output: " << flush;
+    cout.write(output, 280);
     delete output;
+
+    for (const char* a : answers) {
+        delete a;
+    }
 
     return 0;
 }

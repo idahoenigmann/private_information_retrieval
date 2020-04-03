@@ -63,8 +63,8 @@ int main(int argc, char* argv[]) {
             output = xor_string(output, v.at(message_idx));
         }
         cout << "sending" << endl;
-        cout << output << endl;
-        strm << output << endl;
+        strm.write(output, 280);
+        cout.write(output, 280);
         delete output;
         strm.close();
     } else {
