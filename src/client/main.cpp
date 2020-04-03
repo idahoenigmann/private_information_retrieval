@@ -20,7 +20,7 @@ int main() {
     for (const string& port : ports) {
         tcp::iostream strm{"localhost", port};
         if (strm) {
-            cout << "connection created" << endl;
+            spdlog::info("connection created");
 
             std::stringstream ss;
             size_t i{0};
@@ -42,15 +42,16 @@ int main() {
                 data.append(buffer, sizeof(buffer));
             }
             data.append(buffer, strm.gcount());
-            cout << "received data" << endl;
+            spdlog::info("received data");
 
             char* answer = new char[280];
             memcpy(answer, data.c_str(), 280);
             answers.push_back(answer);
             strm.close();
-            cout << "connection closed" << endl;
+            spdlog::info("connection closed");
         } else {
-            cout << "Could not connect to server!" << endl;
+            spdlog::error("Could not connect to server!");
+            exit(1);
         }
     }
 

@@ -4,6 +4,8 @@
 #include <vector>
 #include <CLI11.hpp>
 
+#include <spdlog/spdlog.h>
+
 #include "bit_operations.h"
 
 using namespace std;
@@ -32,9 +34,9 @@ int main(int argc, char* argv[]) {
 
     asio::io_context ctx;
     tcp::endpoint ep{tcp::v4(), port};
-    cout << "connection openend" << endl;
+    spdlog::info("connection opened");
     tcp::acceptor acceptor{ctx, ep};
-    cout << "listening" << endl;
+    spdlog::info("listening");
     acceptor.listen();
 
     tcp::socket sock{ctx};
@@ -62,15 +64,14 @@ int main(int argc, char* argv[]) {
             int message_idx = stoi(data.substr(start, end - start));
             output = xor_string(output, v.at(message_idx));
         }
-        cout << "sending" << endl;
+        spdlog::info("sending");
         strm.write(output, 280);
-        cout.write(output, 280);
         delete output;
         strm.close();
     } else {
-        cout << "could not open stream" << endl;
+        spdlog::error("could not open stream");
     }
-    cout << "connection closed" << endl;
+    spdlog::info("connection closed");
 
     return 0;
 }
