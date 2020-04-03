@@ -319,5 +319,5 @@ cmake-build-debug
 
 build/*
 
-include/CLI11.hpp
+external/CLI11.hpp
 include/spdlog

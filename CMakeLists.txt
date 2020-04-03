@@ -13,6 +13,12 @@ FetchContent_Declare(
 FetchContent_Populate(asio)
 include_directories(${asio_SOURCE_DIR}/asio/include/)
 
+include_directories(external/spdlog/include/)
+include_directories(external/CLI11/include/)
+
+add_subdirectory(external/spdlog)
+add_subdirectory(external/CLI11)
+
 find_package (Threads)
 
 file(GLOB_RECURSE CLIENT_SOURCES "src/client/*.cpp")

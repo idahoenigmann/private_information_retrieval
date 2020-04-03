@@ -2,7 +2,7 @@
 #include <cstring>
 #include <asio.hpp>
 #include <vector>
-#include <CLI11.hpp>
+#include "CLI/CLI.hpp"
 #include <spdlog/spdlog.h>
 
 #include "bit_operations.h"

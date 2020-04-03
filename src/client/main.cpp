@@ -1,6 +1,6 @@
 #include <iostream>
 #include <asio.hpp>
-#include <CLI11.hpp>
+#include "CLI/CLI.hpp"
 #include <spdlog/spdlog.h>
 #include <random>
 #include <algorithm>
