@@ -19,18 +19,25 @@ int main(int argc, char* argv[]) {
 
     CLI11_PARSE(app, argc, argv);
 
-    char a[280] = "Will be starting The White House news conference at 5:15 P.M. Eastern.";
-    char b[280] = "My proposal to the politically correct Automobile Companies would lower the average price of a car to consumers by more than $3500, while at the same time making the cars substantially safer. Engines would run smoother. Positive impact on the environment! Foolish executives!";
-    char c[280] = "My Administration is helping U.S. auto workers by replacing the failed Obama Emissions Rule. Impossible to satisfy its Green New Deal Standard; Lots of unnecessary and expensive penalties to car buyers!";
-
-    cleanup_char_arr(a);
-    cleanup_char_arr(b);
-    cleanup_char_arr(c);
-
     vector<char*> v;
-    v.push_back(a);
-    v.push_back(b);
-    v.push_back(c);
+
+    ifstream ifstrm;
+    ifstrm.open("../src/server/data.txt");
+    if (ifstrm) {
+        string line;
+        while (getline(ifstrm, line)) {
+            char *c = new char[280];
+            strcpy(c, line.c_str());
+            cleanup_char_arr(c);
+            v.push_back(c);
+        }
+    } else {
+        spdlog::error("could not find data.txt");
+        exit(2);
+    }
+    ifstrm.close();
+
+    cout << v.size() << endl;
 
     asio::io_context ctx;
     tcp::endpoint ep{tcp::v4(), port};

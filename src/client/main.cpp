@@ -61,7 +61,6 @@ int main() {
         output = xor_string(output, answers.at(i));
     }
 
-    cout << "output: " << flush;
     cout.write(output, 279);
     cout << endl;
     delete output;
