@@ -13,11 +13,25 @@ FetchContent_Declare(
 FetchContent_Populate(asio)
 include_directories(${asio_SOURCE_DIR}/asio/include/)
 
-include_directories(external/spdlog/include/)
-include_directories(external/CLI11/include/)
+FetchContent_Declare(
+        cli
+        GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
+        GIT_TAG v1.9.0
+        UPDATE_DISCONNECTED 1
+)
 
-add_subdirectory(external/spdlog)
-add_subdirectory(external/CLI11)
+FetchContent_Populate(cli)
+include_directories(${cli_SOURCE_DIR}/include/)
+
+FetchContent_Declare(
+        spdlog
+        GIT_REPOSITORY https://github.com/gabime/spdlog.git
+        GIT_TAG v1.5.0
+        UPDATE_DISCONNECTED 1
+)
+
+FetchContent_Populate(spdlog)
+include_directories(${spdlog_SOURCE_DIR}/include/)
 
 find_package (Threads)
 
