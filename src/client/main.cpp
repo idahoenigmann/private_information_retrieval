@@ -17,14 +17,18 @@ int main(int argc, char* argv[]) {
 
     unsigned short message_idx{0};
     unsigned int port1{1234};
+    string server1{"localhost"};
     unsigned int port2{1235};
+    string server2{"localhost"};
     bool verbose{false};
     bool list{false};
 
     auto list_option = app.add_flag("-l,--list", list, "List all message titles");
     auto index_option = app.add_option("-i,--index", message_idx, "Index of the message to retrieve");
     app.add_option("-p,--port1", port1, "First port of the server from which to retrieve messages");
+    app.add_option("-s,--server1", server1, "First IP address of the server from which to retrieve messages");
     auto port2_option = app.add_option("-q,--port2", port2, "Second port of the server from which to retrieve messages");
+    app.add_option("-t,--server2", server2, "Second IP address of the server from which to retrieve messages");
     app.add_flag("-v,--verbose", verbose, "Print additional debug messages");
 
     list_option->excludes(index_option);
@@ -43,11 +47,12 @@ int main(int argc, char* argv[]) {
     vector<int> idx{message_idx};
 
     vector<string> ports{to_string(port1), to_string(port2)};
+    vector<string> servers{server1, server2};
 
     bool first_server{true};
-
+    int idx_servers{0};
     for (const string& port : ports) {
-        tcp::iostream strm{"localhost", port};
+        tcp::iostream strm{servers.at(idx_servers), port};
         if (strm) {
             spdlog::debug("connection to localhost:{} created", port);
 
@@ -118,6 +123,7 @@ int main(int argc, char* argv[]) {
             spdlog::error("Could not connect to server!");
             exit(1);
         }
+        idx_servers++;
     }
 
     char* output;
