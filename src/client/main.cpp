@@ -1,6 +1,8 @@
 #include <iostream>
 #include <asio.hpp>
 
+#include <spdlog/spdlog.h>
+
 #include "bit_operations.h"
 
 using namespace std;

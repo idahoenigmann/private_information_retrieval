@@ -319,3 +319,5 @@ cmake-build-debug
 
 build/*
 
+include/CLI11.hpp
+include/spdlog
