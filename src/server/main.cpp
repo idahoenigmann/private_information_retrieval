@@ -30,12 +30,15 @@ int main(int argc, char* argv[]) {
     }
 
     vector<char*> v;
+    vector<string> titles;
 
     ifstream ifstrm;
     ifstrm.open("../src/server/data.txt");
     if (ifstrm) {
         string line;
         while (getline(ifstrm, line)) {
+            titles.push_back(line);
+            getline(ifstrm, line);
             char *c = new char[message_len + 1];
             strcpy(c, line.c_str());
             cleanup_char_arr(c, message_len + 1);
@@ -67,6 +70,12 @@ int main(int argc, char* argv[]) {
         if (data == "req message cnt") {
             strm << v.size() << endl;
             getline(strm, data);
+        } else if (data == "req list") {
+            for (string title : titles) {
+                strm << title << endl;
+            }
+            strm << (char)4 << endl;
+            exit(0);
         }
 
         size_t start = 0;

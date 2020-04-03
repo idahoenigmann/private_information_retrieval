@@ -15,15 +15,20 @@ unsigned int message_len{280};
 int main(int argc, char* argv[]) {
     CLI::App app{"privately retrieve messages"};
 
-    unsigned short message_idx;
+    unsigned short message_idx{0};
     unsigned int port1{1234};
     unsigned int port2{1235};
     bool verbose{false};
+    bool list{false};
 
-    app.add_option("-i,--index", message_idx, "Index of the message to retrieve")->required(true);
+    auto list_option = app.add_flag("-l,--list", list, "List all message titles");
+    auto index_option = app.add_option("-i,--index", message_idx, "Index of the message to retrieve");
     app.add_option("-p,--port1", port1, "First port of the server from which to retrieve messages");
-    app.add_option("-q,--port2", port2, "Second port of the server from which to retrieve messages");
+    auto port2_option = app.add_option("-q,--port2", port2, "Second port of the server from which to retrieve messages");
     app.add_flag("-v,--verbose", verbose, "Print additional debug messages");
+
+    list_option->excludes(index_option);
+    list_option->excludes(port2_option);
 
     CLI11_PARSE(app, argc, argv);
 
@@ -45,6 +50,24 @@ int main(int argc, char* argv[]) {
         tcp::iostream strm{"localhost", port};
         if (strm) {
             spdlog::debug("connection to localhost:{} created", port);
+
+            if (list) {
+                strm << "req list" << endl;
+                string line{};
+                getline(strm, line);
+                string end;
+                end = (char)4;
+                int idx{};
+
+                cout << setw(5) << "idx" << ": " << "title" << endl;
+
+                while (line != end) {
+                    cout << setw(5) << idx << ": " << line << endl;
+                    idx++;
+                    getline(strm, line);
+                }
+                exit(0);
+            }
 
             std::stringstream ss;
             size_t i{0};
