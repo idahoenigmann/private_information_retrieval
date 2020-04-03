@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
         while (getline(ifstrm, line)) {
             char *c = new char[message_len + 1];
             strcpy(c, line.c_str());
-            cleanup_char_arr(c);
+            cleanup_char_arr(c, message_len + 1);
             v.push_back(c);
         }
     } else {
@@ -64,6 +64,11 @@ int main(int argc, char* argv[]) {
         string data;
         getline(strm, data);
 
+        if (data == "req message cnt") {
+            strm << v.size() << endl;
+            getline(strm, data);
+        }
+
         size_t start = 0;
         size_t end = 0;
 
@@ -79,10 +84,10 @@ int main(int argc, char* argv[]) {
         {
             end = data.find(',', start);
             int message_idx = stoi(data.substr(start, end - start));
-            output = xor_string(output, v.at(message_idx));
+            output = xor_string(output, v.at(message_idx), message_len + 1);
         }
         spdlog::debug("sending {}", data);
-        strm.write(output, message_len);
+        strm.write(output, message_len + 1);
         delete output;
         strm.close();
     } else {

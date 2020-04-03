@@ -37,20 +37,6 @@ int main(int argc, char* argv[]) {
 
     vector<int> idx{message_idx};
 
-    random_device seeder;
-    mt19937 engine(seeder());
-    uniform_int_distribution<int> dist_idx(0, 11);
-    uniform_int_distribution<int> dist_cnt(2, 10);
-
-    int cnt{dist_cnt(engine)};
-    for (int i{}; i < cnt; i++) {
-        int num{message_idx};
-        while (find(idx.begin(), idx.end(), num) != idx.end()) {
-            num = dist_idx(engine);
-        }
-        idx.push_back(num);
-    }
-
     vector<string> ports{to_string(port1), to_string(port2)};
 
     bool first_server{true};
@@ -65,6 +51,24 @@ int main(int argc, char* argv[]) {
             if (first_server) {
                 i++;
                 first_server = false;
+
+                strm << "req message cnt" << endl;
+                string res;
+                getline(strm, res);
+
+                random_device seeder;
+                mt19937 engine(seeder());
+                uniform_int_distribution<int> dist_idx(0, stoi(res) - 1);
+                uniform_int_distribution<int> dist_cnt(5, 10);
+
+                int cnt{dist_cnt(engine)};
+                for (int i{}; i < cnt; i++) {
+                    int num{message_idx};
+                    while (find(idx.begin(), idx.end(), num) != idx.end()) {
+                        num = dist_idx(engine);
+                    }
+                    idx.push_back(num);
+                }
             }
             for (; i < idx.size(); ++i) {
                 ss << idx[i];
@@ -94,9 +98,9 @@ int main(int argc, char* argv[]) {
     }
 
     char* output;
-    output = xor_string(answers.at(0), answers.at(1));
+    output = xor_string(answers.at(0), answers.at(1), message_len + 1);
     for (int i{2}; i < answers.size(); i++) {
-        output = xor_string(output, answers.at(i));
+        output = xor_string(output, answers.at(i), message_len + 1);
     }
 
     cout.write(output, message_len);
