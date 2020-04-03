@@ -11,6 +11,8 @@
 using namespace std;
 using namespace asio::ip;
 
+unsigned int message_len{280};
+
 int main(int argc, char* argv[]) {
     CLI::App app{"Private Information Retrieval Server"};
 
@@ -26,7 +28,7 @@ int main(int argc, char* argv[]) {
     if (ifstrm) {
         string line;
         while (getline(ifstrm, line)) {
-            char *c = new char[280];
+            char *c = new char[message_len + 1];
             strcpy(c, line.c_str());
             cleanup_char_arr(c);
             v.push_back(c);
@@ -37,7 +39,7 @@ int main(int argc, char* argv[]) {
     }
     ifstrm.close();
 
-    cout << v.size() << endl;
+    spdlog::info("loaded {} messages", v.size());
 
     asio::io_context ctx;
     tcp::endpoint ep{tcp::v4(), port};
@@ -72,7 +74,7 @@ int main(int argc, char* argv[]) {
             output = xor_string(output, v.at(message_idx));
         }
         spdlog::info("sending");
-        strm.write(output, 280);
+        strm.write(output, message_len);
         delete output;
         strm.close();
     } else {

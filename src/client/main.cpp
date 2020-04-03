@@ -8,11 +8,13 @@
 using namespace std;
 using namespace asio::ip;
 
+unsigned int message_len{280};
+
 int main() {
     vector<const char*> answers;
 
     // first element gets retrieved
-    vector<int> idx{2, 0, 1};
+    vector<int> idx{5, 11, 8};
     vector<string> ports{"1234", "1235"};
 
     bool first_server{true};
@@ -36,7 +38,7 @@ int main() {
             }
             strm << ss.str() << endl;
             string data;
-            char buffer[280];
+            char buffer[message_len + 1];
 
             while (strm.read(buffer, sizeof(buffer))) {
                 data.append(buffer, sizeof(buffer));
@@ -44,8 +46,8 @@ int main() {
             data.append(buffer, strm.gcount());
             spdlog::info("received data");
 
-            char* answer = new char[280];
-            memcpy(answer, data.c_str(), 280);
+            char* answer = new char[message_len + 1];
+            memcpy(answer, data.c_str(), message_len + 1);
             answers.push_back(answer);
             strm.close();
             spdlog::info("connection closed");
@@ -61,7 +63,7 @@ int main() {
         output = xor_string(output, answers.at(i));
     }
 
-    cout.write(output, 279);
+    cout.write(output, message_len);
     cout << endl;
     delete output;
 
