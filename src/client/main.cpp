@@ -25,13 +25,16 @@ int main(int argc, char* argv[]) {
     // first element gets retrieved
     vector<int> idx{message_idx};
 
-    for (int i{}; i < 3; i++) {
+    random_device seeder;
+    mt19937 engine(seeder());
+    uniform_int_distribution<int> dist_idx(0, 11);
+    uniform_int_distribution<int> dist_cnt(2, 10);
+
+    int cnt{dist_cnt(engine)};
+    for (int i{}; i < cnt; i++) {
         int num{message_idx};
         while (find(idx.begin(), idx.end(), num) != idx.end()) {
-            random_device seeder;
-            mt19937 engine(seeder());
-            uniform_int_distribution<int> dist(0, 11);
-            num = dist(engine);
+            num = dist_idx(engine);
         }
         idx.push_back(num);
     }

@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
             int message_idx = stoi(data.substr(start, end - start));
             output = xor_string(output, v.at(message_idx));
         }
-        spdlog::info("sending");
+        spdlog::info("sending {}", data);
         strm.write(output, message_len);
         delete output;
         strm.close();
