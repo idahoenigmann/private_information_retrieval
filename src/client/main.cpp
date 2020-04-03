@@ -16,7 +16,12 @@ int main(int argc, char* argv[]) {
     CLI::App app{"privately retrieve messages"};
 
     unsigned short message_idx;
+    unsigned int port1{1234};
+    unsigned int port2{1235};
+
     app.add_option("-i,--index", message_idx, "Index of the message to retrieve")->required(true);
+    app.add_option("-p,--port1", port1, "First port of the server from which to retrieve messages");
+    app.add_option("-q,--port2", port2, "Second port of the server from which to retrieve messages");
 
     CLI11_PARSE(app, argc, argv);
 
@@ -39,14 +44,14 @@ int main(int argc, char* argv[]) {
         idx.push_back(num);
     }
 
-    vector<string> ports{"1234", "1235"};
+    vector<string> ports{to_string(port1), to_string(port2)};
 
     bool first_server{true};
 
     for (const string& port : ports) {
         tcp::iostream strm{"localhost", port};
         if (strm) {
-            spdlog::info("connection created");
+            spdlog::info("connection to localhost:{} created", port);
 
             std::stringstream ss;
             size_t i{0};
