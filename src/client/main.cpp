@@ -15,6 +15,8 @@ unsigned int message_len{280};
 int main(int argc, char* argv[]) {
     CLI::App app{"privately retrieve messages"};
 
+    /* Specify command line options */
+
     unsigned short message_idx{0};
     unsigned int port1{1234};
     string server1{"localhost"};
@@ -37,79 +39,105 @@ int main(int argc, char* argv[]) {
 
     CLI11_PARSE(app, argc, argv);
 
+    /* set verbose level */
+
     if (verbose) {
         spdlog::set_level(spdlog::level::debug);
     } else {
         spdlog::set_level(spdlog::level::info);
     }
 
-    vector<const char*> answers;
+    /* setup vectors for later use */
 
-    vector<int> idx{message_idx};
+    vector<const char*> responses;
+    vector<int> req_idx{message_idx};
+    vector<pair<string, string>> endpoints{make_pair(server1, to_string(port1)), make_pair(server2, to_string(port2))};
 
-    vector<string> ports{to_string(port1), to_string(port2)};
-    vector<string> servers{server1, server2};
+    /* setup random engine for later use */
 
-    bool first_server{true};
-    int idx_servers{0};
-    for (const string& port : ports) {
-        tcp::iostream strm{servers.at(idx_servers), port};
-        if (strm) {
-            spdlog::debug("connection to localhost:{} created", port);
+    random_device seeder;
+    mt19937 rndm_engine{seeder()};
 
-            if (list) {
+    /* loop through both endpoints */
+
+    for (int idx_server{0}; idx_server < 2; idx_server++) {
+
+        /* create stream to endpoint */
+        tcp::iostream strm{endpoints.at(idx_server).first, endpoints.at(idx_server).second};
+        if (strm) {     /* stream could be created */
+            spdlog::debug("connection to localhost:{} created", endpoints.at(idx_server).second);
+
+            if (list) {     /* list cli option was specified */
                 strm << "req list" << endl;
                 string line{};
                 getline(strm, line);
                 string end;
-                end = (char)4;
+                end = (char)4;      /* 4 == EOT (end of transmission) */
                 int idx{};
+
+                /* output header */
 
                 cout << setw(5) << "idx" << ": " << "title" << endl;
 
-                while (line != end) {
+                while (line != end) {       /* while the end character has not been send */
+
+                    /* output the received data in a formatted way */
+
                     cout << setw(5) << idx << ": " << line << endl;
                     idx++;
                     getline(strm, line);
                 }
+
+                /* exit the program without setting an error code */
+
                 exit(0);
             }
 
-            std::stringstream ss;
-            size_t i{0};
+            /* create a copy of the idx vector (for shuffle) */
 
             vector<int> idx_{};
 
-            if (first_server) {
-                first_server = false;
+            if (idx_server == 0) {      /* current is the first server */
+
+                /* get number of messages from server */
 
                 strm << "req message cnt" << endl;
                 string res;
                 getline(strm, res);
 
-                random_device seeder;
-                mt19937 engine(seeder());
+                /* setup number distributions */
+
                 uniform_int_distribution<int> dist_idx(0, stoi(res) - 1);
                 uniform_int_distribution<int> dist_cnt(5, 10);
 
-                int cnt{dist_cnt(engine)};
+                int cnt{dist_cnt(rndm_engine)};     /* number of messages to request */
                 for (int i{}; i < cnt; i++) {
                     int num{message_idx};
-                    while (find(idx.begin(), idx.end(), num) != idx.end()) {
-                        num = dist_idx(engine);
+                    while (find(req_idx.begin(), req_idx.end(), num) != req_idx.end()) {
+                        num = dist_idx(rndm_engine);
                     }
-                    idx.push_back(num);
+                    req_idx.push_back(num);     /* message idx to request */
                 }
-            } else {
-                idx_.push_back(idx.at(0));
+            } else {    /* current is the second server */
+
+                /* second server also request the desired message */
+
+                idx_.push_back(req_idx.at(0));
             }
 
-            for (int i{1}; i < idx.size(); i++) {
-                idx_.push_back(idx.at(i));
+            /* add all messages besides the first one to the requested messages */
+
+            for (int i{1}; i < req_idx.size(); i++) {
+                idx_.push_back(req_idx.at(i));
             }
 
-            auto rng = default_random_engine {};
-            shuffle(begin(idx_), end(idx_), rng);
+            /* randomize the oder of the requested messages */
+
+            shuffle(begin(idx_), end(idx_), rndm_engine);
+
+            /* transform the reuqest idx to a string */
+
+            std::stringstream ss;
 
             for (int i{0}; i < idx_.size(); ++i) {
                 ss << idx_[i];
@@ -117,39 +145,58 @@ int main(int argc, char* argv[]) {
                     ss << ",";
                 }
             }
+
+            /* reqeust messages */
+
             strm << ss.str() << endl;
+
+            /* receive data */
+
             string data;
             char buffer[message_len + 1];
+
+            /* write messages into char buffer */
 
             while (strm.read(buffer, sizeof(buffer))) {
                 data.append(buffer, sizeof(buffer));
             }
+
+            /* move buffer into string */
+
             data.append(buffer, strm.gcount());
             spdlog::debug("received data");
 
+            /* copy messages viy memcpy to avoid \0 stopping the copy process */
+
             char* answer = new char[message_len + 1];
             memcpy(answer, data.c_str(), message_len + 1);
-            answers.push_back(answer);
+            responses.push_back(answer);
+
+            /* close stream */
+
             strm.close();
             spdlog::debug("connection closed");
-        } else {
-            spdlog::error("Could not connect to server!");
+        } else {        /* endpoint is not reachable */
+            spdlog::error("Could not connect to server {}:{}!", endpoints.at(idx_server).first, endpoints.at(idx_server).second);
             exit(1);
         }
-        idx_servers++;
     }
 
+    /* xor responses */
+
     char* output;
-    output = xor_string(answers.at(0), answers.at(1), message_len + 1);
-    for (int i{2}; i < answers.size(); i++) {
-        output = xor_string(output, answers.at(i), message_len + 1);
-    }
+    output = xor_string(responses.at(0), responses.at(1), message_len + 1);
+
+    /* output the desired message */
 
     cout.write(output, message_len);
     cout << endl;
+
+    /* delete everything */
+
     delete output;
 
-    for (const char* a : answers) {
+    for (const char* a : responses) {
         delete a;
     }
 
