@@ -77,8 +77,10 @@ int main(int argc, char* argv[]) {
 
             std::stringstream ss;
             size_t i{0};
+
+            vector<int> idx_{};
+
             if (first_server) {
-                i++;
                 first_server = false;
 
                 strm << "req message cnt" << endl;
@@ -98,14 +100,20 @@ int main(int argc, char* argv[]) {
                     }
                     idx.push_back(num);
                 }
+            } else {
+                idx_.push_back(idx.at(0));
+            }
+
+            for (int i{1}; i < idx.size(); i++) {
+                idx_.push_back(idx.at(i));
             }
 
             auto rng = default_random_engine {};
-            shuffle(begin(idx), end(idx), rng);
+            shuffle(begin(idx_), end(idx_), rng);
 
-            for (; i < idx.size(); ++i) {
-                ss << idx[i];
-                if (i != idx.size() - 1) {
+            for (int i{0}; i < idx_.size(); ++i) {
+                ss << idx_[i];
+                if (i != idx_.size() - 1) {
                     ss << ",";
                 }
             }
