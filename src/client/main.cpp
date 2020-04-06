@@ -99,6 +99,10 @@ int main(int argc, char* argv[]) {
                     idx.push_back(num);
                 }
             }
+
+            auto rng = default_random_engine {};
+            shuffle(begin(idx), end(idx), rng);
+
             for (; i < idx.size(); ++i) {
                 ss << idx[i];
                 if (i != idx.size() - 1) {
