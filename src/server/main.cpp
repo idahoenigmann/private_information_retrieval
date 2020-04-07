@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
     /* read data file */
 
     ifstream ifstrm;
-    ifstrm.open("../src/server/data.txt");
+    ifstrm.open("src/server/data.txt");
     if (ifstrm) {       /* file could be opened */
         string line;
 
