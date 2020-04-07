@@ -1,8 +1,5 @@
-#include <iostream>
-#include <cstring>
 #include <asio.hpp>
-#include <vector>
-#include "CLI/CLI.hpp"
+#include <CLI/CLI.hpp>
 #include <spdlog/spdlog.h>
 
 #include "bit_operations.h"

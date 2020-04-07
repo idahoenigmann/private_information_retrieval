@@ -1,9 +1,6 @@
 #ifndef PRIVATE_INFORMATION_RETRIEVAL_BIT_OPERATIONS_H
 #define PRIVATE_INFORMATION_RETRIEVAL_BIT_OPERATIONS_H
 
-#include <iostream>
-
-
 /* Sets all chars after (and including) the \0 to spaces
  * to enable all xor operations to be performed smoothly;
  * (and sets the \0 back into the last char)

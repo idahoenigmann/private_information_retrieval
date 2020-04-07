@@ -1,9 +1,8 @@
-#include <iostream>
-#include <asio.hpp>
-#include "CLI/CLI.hpp"
-#include <spdlog/spdlog.h>
 #include <random>
-#include <algorithm>
+
+#include <asio.hpp>
+#include <CLI/CLI.hpp>
+#include <spdlog/spdlog.h>
 
 #include "bit_operations.h"
 
