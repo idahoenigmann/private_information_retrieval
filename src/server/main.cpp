@@ -15,6 +15,8 @@ unsigned int message_len{280};
 int main(int argc, char* argv[]) {
     CLI::App app{"Private Information Retrieval Server"};
 
+    /* Specify command line options */
+
     unsigned short port;
     bool verbose{false};
 
@@ -23,34 +25,46 @@ int main(int argc, char* argv[]) {
 
     CLI11_PARSE(app, argc, argv);
 
+    /* set verbose level */
+
     if (verbose) {
         spdlog::set_level(spdlog::level::debug);
     } else {
         spdlog::set_level(spdlog::level::info);
     }
 
-    vector<char*> v;
+    /* setup vectors for later use */
+
+    vector<char*> messages;
     vector<string> titles;
+
+    /* read data file */
 
     ifstream ifstrm;
     ifstrm.open("../src/server/data.txt");
-    if (ifstrm) {
+    if (ifstrm) {       /* file could be opened */
         string line;
+
+        /* read data.txt line by line
+         * data is alternately title and data*/
+
         while (getline(ifstrm, line)) {
             titles.push_back(line);
             getline(ifstrm, line);
             char *c = new char[message_len + 1];
-            strcpy(c, line.c_str());
-            cleanup_char_arr(c, message_len + 1);
-            v.push_back(c);
+            strcpy(c, line.c_str());        /* strcpy can be used since the data does not contain \0 */
+            cleanup_char_arr(c, message_len + 1);       /* fill up char[] to full message len */
+            messages.push_back(c);
         }
-    } else {
+    } else {        /* file could not be opened */
         spdlog::error("could not find data.txt");
         exit(2);
     }
     ifstrm.close();
 
-    spdlog::debug("loaded {} messages", v.size());
+    spdlog::debug("loaded {} messages", messages.size());
+
+    /* setup connection */
 
     asio::io_context ctx;
     tcp::endpoint ep{tcp::v4(), port};
@@ -63,20 +77,25 @@ int main(int argc, char* argv[]) {
     acceptor.accept(sock);
     tcp::iostream strm{std::move(sock)};
 
-    if (strm) {
+    if (strm) {     /* stream could be opened */
+
+        /* receive data on what to send */
+
         string data;
         getline(strm, data);
 
-        if (data == "req message cnt") {
-            strm << v.size() << endl;
+        if (data == "req message cnt") {        /* message cnt requested */
+            strm << messages.size() << endl;
             getline(strm, data);
-        } else if (data == "req list") {
-            for (string title : titles) {
+        } else if (data == "req list") {        /* message titles requested */
+            for (const string& title : titles) {
                 strm << title << endl;
             }
-            strm << (char)4 << endl;
-            exit(0);
+            strm << (char)4 << endl;        /* send EOT (end of transmission) */
+            exit(0);        /* exit program without setting the error code */
         }
+
+        /* split message idx into integers */
 
         size_t start = 0;
         size_t end = 0;
@@ -87,22 +106,31 @@ int main(int argc, char* argv[]) {
         end = data.find(',', start);
         int second = stoi(data.substr(start, end - start));
 
-        char* output{xor_string(v.at(first), v.at(second))};
+        /* start the xor operation of the messages */
+
+        char* output{xor_string(messages.at(first), messages.at(second))};
+
+        /* retrieve and xor the rest of the messages */
 
         while ((start = data.find_first_not_of(',', end)) != std::string::npos)
         {
             end = data.find(',', start);
             int message_idx = stoi(data.substr(start, end - start));
-            output = xor_string(output, v.at(message_idx), message_len + 1);
+            output = xor_string(output, messages.at(message_idx), message_len + 1);
         }
+
+        /* send data */
+
         spdlog::debug("sending {}", data);
         strm.write(output, message_len + 1);
+
+        /* delete resources */
+
         delete output;
         strm.close();
-    } else {
+        spdlog::debug("connection closed");
+    } else {        /* stream could not be opened */
         spdlog::error("could not open stream");
     }
-    spdlog::debug("connection closed");
-
     return 0;
 }
