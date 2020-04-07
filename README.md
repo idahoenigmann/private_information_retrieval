@@ -14,7 +14,8 @@ Follow the these steps:
 
 ```
 git clone https://github.com/idahoenigmann/hoenigmann.git
-cd hoenigmann && mkdir build
+cd hoenigmann
+mkdir build && cd build
 cmake ..
 make
 ```
