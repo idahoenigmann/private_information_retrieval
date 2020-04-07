@@ -2,6 +2,23 @@
 
 \usepackage[german]{babel}
 \usepackage{graphicx}
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+
+\lstset{frame=tb,
+	aboveskip=5mm,
+	belowskip=5mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	breaklines=true,
+	breakatwhitespace=false,
+	tabsize=4
+}
 
 %opening
 \title{Private Information Retrieval}
@@ -64,10 +81,39 @@ Der Client muss nun ebenfalls die xor-Operation auf die beiden erlangten Antwort
 \section{Möglichkeiten einer Untergrabung}
 
 \section{Implementation}
-\subsection{Aufbau und Speicher der Daten}
-\subsection{Kommunikation}
-\subsection{Byte-Operationen}
 \subsection{Command Line Interface}
+Das Command Line Interface wurde mit CLI11 umgesetzt.
+
+Um Informationen über die Verwendung der beiden Programme \textit{client} und \textit{server} zu erhalten kann die Option $--help$ (oder als Kurzform $-h$) spezifiziert werden.
+
+Sonstige Optionen, die bei \textit{client} spezifiziert werden können sind:
+
+\begin{itemize}
+	\item $--list$ / $-l$: gibt eine Liste aller Nachrichten Titel und deren Index aus
+	\item $--index$ / $-i$: gibt die Nachricht des Index aus
+	\item $--port1$ / $-p$: Port des ersten Server an dem die Nachrichten angefordert werden sollen
+	\item $--server1$ / $-s$: IP Adresse des ersten Server an dem die Nachrichten angefordert werden sollen
+	\item $--port2$ / $-q$: Port des zweiten Server an dem die Nachrichten angefordert werden sollen
+	\item $--server2$ / $-t$: IP Adresse des zweiten Server an dem die Nachrichten angefordert werden sollen
+	\item $--verbose$ / $-v$: gibt zusätzliche Debug Meldungen aus
+\end{itemize}
+
+\noindent
+Die Optionen bei \textit{server} sind folgende:
+
+\begin{itemize}
+	\item $--port$ / $-p$: Port, an dem die Verbindung aufgebaut werden soll
+	\item $--verbose$ / $-v$: gibt Debug Meldungen aus
+	\item $--loop$ / $-l$: lässt den Server in einer Schleife laufen
+\end{itemize}
+
+\subsection{Aufbau und Speicher der Daten}
+Da sich dieses Projekt auf die sichere Kommunikation fokussiert werden die Daten einfachheitshalber in einem Textfile gespeichert. Die Datei \textit{data.txt} wird als Datenspeicher verwendet. Der Aufbau der Daten ist abwechselnd der Titel der Nachricht und dann die eigentliche Nachricht. Da in dem Text der Daten prinzipiell alle Zeichen vorkommen können wird als Trennzeichen ein Zeilenumbruch (\textbackslash n) verwendet.
+
+Das Datenfile wird ausgelesen nachdem der Server gestartet wurde.
+
+\subsection{Byte-Operationen}
 \subsection{Zufällige Nachrichten anfordern}
+\subsection{Kommunikation}
 
 \end{document}
