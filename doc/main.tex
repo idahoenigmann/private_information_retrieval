@@ -1,5 +1,7 @@
 \documentclass[]{article}
 
+\usepackage{graphicx}
+
 %opening
 \title{Private Information Retrieval}
 \author{Ida Hönigmann}
@@ -27,6 +29,28 @@ Ein zweiter Anwendungsfall wäre ein Online-Nachrichtendienst. Oft wird nicht de
 In diesen beiden und vielen anderen Fällen kann eine Implementierung eines \textit{private information retrieval} die Benutzer schützen.
 
 \section{Funktionsweise}
+Die in diesem Projekt implementierte Version von \textit{private information retrieval} nutzt die Eigenschaften der Exklusiv-Oder-Operation (xor).
+
+\subsection{Exlusiv-Oder-Operation (xor)}
+Die xor Operation erhält, gleich der ''und''- (Englisch ''and'') und der ''oder''- (Englisch ''or'') Operation zwei Signale als Eingang und liefert ein Signal als Ausgang. Dabei kann man das Verhalten von xor als ''entweder oder'' beschreiben. Die Wahrheitstafel in Abbildung~\ref{fig:wahrheitstafel_xor} definiert das Verhalten von xor genauer.
+
+Die Eigenschaft, die dieses Projekt benötigt ist folgende: Jede Folge von Bytes $a$ mit einer anderen Folge von Bytes $b$ nach Anwendung der xor-Operation ergibt eine Folge von Bytes $c$ für die gilt, dass $c$ xor $a = b$ und $c$ xor $b = a$.
+
+\begin{figure}
+	%\includegraphics[width=\linewidth]{wahrheitstafel_xor.jpg}
+	\caption{Wahrheitstafel der xor-Operation.}
+	\label{fig:wahrheitstafel_xor}
+\end{figure}
+
+\subsection{Inhalt der gesendeten Nachrichten}
+Ein Client baut zwei Verbindungen zu unterschiedlichen Servern auf. Statt nur die gewünschte Nachricht anzufordern, verlangt er das Produkt von xor-Operationen vieler Nachrichten.
+
+Welche Nachrichten der Client anfordert, die Reihenfolge der Nachrichten, sowie die Anzahl sind irrelevant, solange beide Server die fast die gleichen Nachrichten verwenden. Der einzige Unterschied darf darin liegen, dass in einer der beiden Anforderungen die gewünschte Nachricht enthalten ist, und in der anderen Anforderung nicht.
+
+Beide Server schicken dann das geforderte Produkt der Nachrichten zurück.
+
+\subsection{Kalkulation der gewünschten Nachricht}
+Der Client muss nun ebenfalls die xor-Operation auf die beiden erlangten Antworten der Server anwenden. Das Ergebnis ist die gewünschte Nachricht.
 
 \section{Möglichkeiten einer Untergrabung}
 
