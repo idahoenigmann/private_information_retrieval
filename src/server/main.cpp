@@ -16,9 +16,11 @@ int main(int argc, char* argv[]) {
 
     unsigned short port;
     bool verbose{false};
+    bool loop{false};
 
     app.add_option("-p,--port", port, "Port on which to send data on")->required(true);
     app.add_flag("-v,--verbose", verbose, "Print additional debug messages");
+    app.add_flag("-l,--loop", loop, "Loop back to start after having send data");
 
     CLI11_PARSE(app, argc, argv);
 
@@ -61,73 +63,79 @@ int main(int argc, char* argv[]) {
 
     spdlog::debug("loaded {} messages", messages.size());
 
-    /* setup connection */
+    do {        /* loop through code at least once or endlessly if loop flat was set */
 
-    asio::io_context ctx;
-    tcp::endpoint ep{tcp::v4(), port};
-    spdlog::debug("connection opened");
-    tcp::acceptor acceptor{ctx, ep};
-    spdlog::debug("listening");
-    acceptor.listen();
+        /* setup connection */
 
-    tcp::socket sock{ctx};
-    acceptor.accept(sock);
-    tcp::iostream strm{std::move(sock)};
+        asio::io_context ctx;
+        tcp::endpoint ep{tcp::v4(), port};
+        spdlog::debug("connection opened");
+        tcp::acceptor acceptor{ctx, ep};
+        spdlog::debug("listening");
+        acceptor.listen();
 
-    if (strm) {     /* stream could be opened */
+        tcp::socket sock{ctx};
+        acceptor.accept(sock);
+        tcp::iostream strm{std::move(sock)};
 
-        /* receive data on what to send */
+        if (strm) {     /* stream could be opened */
 
-        string data;
-        getline(strm, data);
+            /* receive data on what to send */
 
-        if (data == "req message cnt") {        /* message cnt requested */
-            strm << messages.size() << endl;
+            string data;
             getline(strm, data);
-        } else if (data == "req list") {        /* message titles requested */
-            for (const string& title : titles) {
-                strm << title << endl;
+
+            if (data == "req message cnt") {        /* message cnt requested */
+                strm << messages.size() << endl;
+                getline(strm, data);
+            } else if (data == "req list") {        /* message titles requested */
+                for (const string& title : titles) {
+                    strm << title << endl;
+                }
+                strm << (char)4 << endl;        /* send EOT (end of transmission) */
+                exit(0);        /* exit program without setting the error code */
             }
-            strm << (char)4 << endl;        /* send EOT (end of transmission) */
-            exit(0);        /* exit program without setting the error code */
-        }
 
-        /* split message idx into integers */
+            /* split message idx into integers */
 
-        size_t start = 0;
-        size_t end = 0;
+            size_t start = 0;
+            size_t end = 0;
 
-        end = data.find(',', start);
-        int first = stoi(data.substr(start, end - start));
-        start = end + 1;
-        end = data.find(',', start);
-        int second = stoi(data.substr(start, end - start));
-
-        /* start the xor operation of the messages */
-
-        char* output{xor_string(messages.at(first), messages.at(second))};
-
-        /* retrieve and xor the rest of the messages */
-
-        while ((start = data.find_first_not_of(',', end)) != std::string::npos)
-        {
             end = data.find(',', start);
-            int message_idx = stoi(data.substr(start, end - start));
-            output = xor_string(output, messages.at(message_idx), message_len + 1);
+            int first = stoi(data.substr(start, end - start));
+            start = end + 1;
+            end = data.find(',', start);
+            int second = stoi(data.substr(start, end - start));
+
+            /* start the xor operation of the messages */
+
+            char* output{xor_string(messages.at(first), messages.at(second))};
+
+            /* retrieve and xor the rest of the messages */
+
+            while ((start = data.find_first_not_of(',', end)) != std::string::npos)
+            {
+                end = data.find(',', start);
+                int message_idx = stoi(data.substr(start, end - start));
+                output = xor_string(output, messages.at(message_idx), message_len + 1);
+            }
+
+            /* send data */
+
+            spdlog::debug("sending {}", data);
+            strm.write(output, message_len + 1);
+
+            /* delete resources */
+
+            delete output;
+            strm.close();
+            spdlog::debug("connection closed");
+
+        } else {        /* stream could not be opened */
+            spdlog::error("could not open stream");
         }
 
-        /* send data */
+    } while (loop);     /* loop flag was set */
 
-        spdlog::debug("sending {}", data);
-        strm.write(output, message_len + 1);
-
-        /* delete resources */
-
-        delete output;
-        strm.close();
-        spdlog::debug("connection closed");
-    } else {        /* stream could not be opened */
-        spdlog::error("could not open stream");
-    }
     return 0;
 }
