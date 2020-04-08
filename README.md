@@ -23,8 +23,8 @@ make
 To test communication try:
 
 ```
-server -p 1234 &
-server -p 1235 &
+server -p 1234 -f ../src/server/data.txt &
+server -p 1235 -f ../src/server/data.txt &
 client -i 1
 ```
 

@@ -17,10 +17,12 @@ int main(int argc, char* argv[]) {
     unsigned short port;
     bool verbose{false};
     bool loop{false};
+    string data_file{"data.txt"};
 
     app.add_option("-p,--port", port, "Port on which to send data on")->required(true);
     app.add_flag("-v,--verbose", verbose, "Print additional debug messages");
     app.add_flag("-l,--loop", loop, "Loop back to start after having send data");
+    app.add_option("-f,--file", data_file, "File in which the messages are stored");
 
     CLI11_PARSE(app, argc, argv);
 
@@ -40,11 +42,11 @@ int main(int argc, char* argv[]) {
     /* read data file */
 
     ifstream ifstrm;
-    ifstrm.open("src/server/data.txt");
+    ifstrm.open(data_file);
     if (ifstrm) {       /* file could be opened */
         string line;
 
-        /* read data.txt line by line
+        /* read data_file line by line
          * data is alternately title and data*/
 
         while (getline(ifstrm, line)) {
@@ -56,7 +58,7 @@ int main(int argc, char* argv[]) {
             messages.push_back(c);
         }
     } else {        /* file could not be opened */
-        spdlog::error("could not find data.txt");
+        spdlog::error("could not find {}", data_file);
         exit(2);
     }
     ifstrm.close();
