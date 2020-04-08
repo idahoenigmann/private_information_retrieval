@@ -104,6 +104,12 @@ int main(int argc, char* argv[]) {
                 string res;
                 getline(strm, res);
 
+                /* get message len from server */
+
+                strm << "req message len" << endl;
+                strm >> message_len;
+                cout << "message len is " << message_len << endl;
+
                 /* setup number distributions */
 
                 uniform_int_distribution<int> dist_idx(0, stoi(res) - 1);

@@ -23,6 +23,7 @@ int main(int argc, char* argv[]) {
     app.add_flag("-v,--verbose", verbose, "Print additional debug messages");
     app.add_flag("-l,--loop", loop, "Loop back to start after having send data");
     app.add_option("-f,--file", data_file, "File in which the messages are stored");
+    app.add_option("-s,--size", message_len, "Maximum length of messages");
 
     CLI11_PARSE(app, argc, argv);
 
@@ -87,15 +88,22 @@ int main(int argc, char* argv[]) {
             string data;
             getline(strm, data);
 
-            if (data == "req message cnt") {        /* message cnt requested */
-                strm << messages.size() << endl;
-                getline(strm, data);
-            } else if (data == "req list") {        /* message titles requested */
+            if (data == "req list") {        /* message titles requested */
                 for (const string& title : titles) {
                     strm << title << endl;
                 }
                 strm << (char)4 << endl;        /* send EOT (end of transmission) */
                 exit(0);        /* exit program without setting the error code */
+            }
+
+            if (data == "req message cnt") {        /* message cnt requested */
+                strm << messages.size() << endl;
+                getline(strm, data);
+            }
+
+            if (data == "req message len") {        /* message len requested */
+                strm << message_len << endl;
+                getline(strm, data);
             }
 
             /* split message idx into integers */
