@@ -199,6 +199,41 @@ void cleanup_char_arr(char a[], unsigned int len=281) {
 \end{lstlisting}
 
 \subsection{Zufällige Nachrichten anfordern}
+Um die Sicherheit des Client zu garantieren müssen zufällige Nachrichten angefordert werden. Weiters muss die Anzahl der Nachrichten zufällig sein, da sonst ein Server feststellen könnte, das eine der von ihm verlangten Nachrichten, die ''richtige'' ist. Zusätzlich müssen die Nachrichten in einer zufälligen Reihenfolge angefordert werden. Wenn zum Beispiel die ''richtige'' Nachricht immer die erste wäre, hätte der Server ein leichtes Spiel.
+
+Um all diese Anforderungen umzusetzten wird in diesem Projekt die \textit{random}-Bibliothek verwendet.
+
+\begin{lstlisting}
+/* setup number distributions */
+
+random_device seeder;
+mt19937 rndm_engine{seeder()};
+
+uniform_int_distribution<int> dist_idx(0, stoi(cnt_messages) - 1);
+uniform_int_distribution<int> dist_cnt(5, 10);
+
+int cnt{dist_cnt(rndm_engine)};     /* number of messages to request */
+for (int i{}; i < cnt; i++) {
+	int num{message_idx};
+	while (find(req_idx.begin(), req_idx.end(), num) != req_idx.end()) {
+		num = dist_idx(rndm_engine);
+	}
+	req_idx.push_back(num);     /* message idx to request */
+}
+\end{lstlisting}
+
+Dieser Code erfüllt die ersten beiden Anforderungen (zufällige Anzahl an zufälligen Nachrichten). Zuerst wird, in Zeile 9, die Anzahl der Nachrichten festgelegt. Diese ann einen Wert zwischen 5 und 10 annehmen. In der darauffolgenden Schleife werden so lange zufällige Zahlen generiert, bis diese noch nicht in \textit{req\_idx}, einem Vector der die Nachrichten Indizes speichert, enthalten sind. Dabei kann jede Zahl zwischen 0 und der Anzahl der Nachrichten weniger Eins hinzugefügt werden.
+
+Das zufällige Umordnen des Vectors wird mit folgender Zeile Code erreicht:
+
+\begin{lstlisting}
+/* randomize the oder of the requested messages */
+
+shuffle(begin(idx_), end(idx_), rndm_engine);
+\end{lstlisting}
+
+Dabei steht \textit{idx\_} für eine Kopie von \textit{req\_idx}. Damit wird der originale Vektor nicht verändert.
+
 \subsection{Kommunikation}
 
 \end{document}

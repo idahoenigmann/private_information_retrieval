@@ -108,7 +108,6 @@ int main(int argc, char* argv[]) {
 
                 strm << "req message len" << endl;
                 strm >> message_len;
-                cout << "message len is " << message_len << endl;
 
                 /* setup number distributions */
 
