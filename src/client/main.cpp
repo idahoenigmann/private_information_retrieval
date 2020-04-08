@@ -101,17 +101,19 @@ int main(int argc, char* argv[]) {
                 /* get number of messages from server */
 
                 strm << "req message cnt" << endl;
-                string res;
-                getline(strm, res);
+                string message_cnt;
+                getline(strm, message_cnt);
 
                 /* get message len from server */
 
                 strm << "req message len" << endl;
-                strm >> message_len;
+                string message_len_str;
+                getline(strm, message_len_str);
+                message_len = stoi(message_len_str);
 
                 /* setup number distributions */
 
-                uniform_int_distribution<int> dist_idx(0, stoi(res) - 1);
+                uniform_int_distribution<int> dist_idx(0, stoi(message_cnt) - 1);
                 uniform_int_distribution<int> dist_cnt(5, 10);
 
                 int cnt{dist_cnt(rndm_engine)};     /* number of messages to request */
