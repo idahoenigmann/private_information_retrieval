@@ -93,7 +93,10 @@ int main(int argc, char* argv[]) {
                     strm << title << endl;
                 }
                 strm << (char)4 << endl;        /* send EOT (end of transmission) */
-                exit(0);        /* exit program without setting the error code */
+
+                strm.close();
+                spdlog::debug("connection closed");
+                continue;
             }
 
             if (data == "req message cnt") {        /* message cnt requested */
