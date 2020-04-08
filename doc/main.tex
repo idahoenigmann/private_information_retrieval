@@ -6,6 +6,8 @@
 \usepackage{color}
 
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{orange}{RGB}{255,152,0}
+\definecolor{green}{RGB}{76,175,80}
 
 \lstset{frame=tb,
 	aboveskip=5mm,
@@ -18,6 +20,13 @@
 	breaklines=true,
 	breakatwhitespace=false,
 	tabsize=4
+}
+
+\lstset{
+	language=C++,
+	keywordstyle=\color{orange},
+	stringstyle=\color{green},
+	commentstyle=\color{gray}
 }
 
 %opening
@@ -113,6 +122,82 @@ Da sich dieses Projekt auf die sichere Kommunikation fokussiert werden die Daten
 Das Datenfile wird ausgelesen nachdem der Server gestartet wurde.
 
 \subsection{Byte-Operationen}
+Um xor auf zwei Strings anwenden zu können wurde ein entsprechender Code in der Funktion \textit{xor\_string} implementiert.
+
+\begin{lstlisting}
+/* Perform xor on every char and return a new output char[]
+* */
+char* xor_string(const char a[], const char b[], unsigned int len=281) {
+	char* output = new char[len];
+	
+	for (int i{}; i < len - 1; i++) {
+		char tmp = a[i] ^ b[i];
+		output[i] = tmp;
+	}
+	output[len - 1] = '\0';
+	return output;
+}
+\end{lstlisting}
+
+Da die zwei Array-von-Character-Parameter implizit auf Pointer des jeweils ersten Elements geändert werden, muss die Länge der Arrays als Parameter mitgegeben werden.
+
+Die xor-Operation zweier Strings kann gelöst werden, indem jedes Zeichen (jeder Character) des Strings mit dem dazugehörigen Zeichen des anderen Strings xor verknüpft wird. Wenn das für alle Zeichen gemacht wird erhält man, durch zusammenfügen zu einem neuen String, das Ergebnis.
+
+Zwei Character in C++ xor zu verknüpfen ist relativ einfach, da ein Character immer gleich lange ist (meist 8 Bit = 1 Byte). In Zeile 7 wird diese xor Verknüpfung vorgenommen. Nachdem alle Zeichen xor-verknüpft sind (also Zeile 7 \textit{len - 1} Mal durchgeführt wurde) wird zuletzt noch ein \textbackslash 0 hinzugefügt. Dieses markiert für gewöhnlich das Ende eines Strings.
+
+Die Funktion liefert einen Pointer auf ein Characterarray zurück, da alle anderen Rückgabetypen, die normalerweise in solch einer Situation verwendet werden könnten, Probleme verursacht haben. Das Problem, das bei einem xor von zwei gleichen Zeichen auftritt ist, dass das Ergebnis \textbackslash 0 ergibt. Das wird in Abbildung~\ref{fig:xor_gleiches_zeichen} gezeigt. Bei allen Stringoperationen wird allerdings das \textbackslash 0 als Ende angesehen, daher musste direkt in einigen Bereichen direkt auf den Speicher zugegriffen werden.
+
+\begin{table}[]
+	\centering
+	\begin{tabular}{l|l}
+		Bitmuster  & Bedeutung (ASCII)\\ \hline
+		01100001   & a                \\
+		01100001   & a                \\ \hline
+		00000000   & \textbackslash 0 \\
+	\end{tabular}
+	\caption{Zwei gleiche Zeichen (a) miteinander xor verknüpft ergibt das Bitmuster 00000000, welches \textbackslash 0 bedeutet. Dieses Symbol steht normalerweise nur am Ende eines Strings.}
+	\label{fig:xor_gleiches_zeichen}
+\end{table}
+
+Eine Bedingung um die \textit{xor\_string} Funktion anwenden zu können ist, dass beide Strings gleich lange sein müssen. Selbst wenn die beiden Strings als Character-Array mit der gleichen Größe angelegt werden gibt es Probleme. Um effizient zu sein, wird beim Initialisieren eines Character-Arrays nur der Teil beschrieben, der auch verwendet werden muss. So kann zum Beispiel folgender Code
+
+\noindent
+\lstinline|char* char_ptr = new char[10]; strcpy(char_ptr, "Hello!");| das Bitmuster in Abbildung~\ref{fig:bitcode_char_array} ergeben.
+
+\begin{table}[]
+	\centering
+	\begin{tabular}{l|l}
+		Bitmuster  & Bedeutung (ASCII)\\ \hline
+		01001000   & H                \\
+		01100101   & e                \\
+		01101100   & l                \\
+		01101100   & l                \\
+		01101111   & o                \\
+		00100001   & !                \\
+		00000000   & \textbackslash 0 \\
+		00001001   & TAB              \\
+		00000000   & \textbackslash 0 \\		
+		01000001   & A                \\		
+	\end{tabular}
+	\caption{Das Bitmuster, das nach Ausführung des Codes \lstinline|char* char_ptr = new char[10]; strcpy(char_ptr, "Hello!");| beispielsweise im Speicher stehen kann.}
+	\label{fig:bitcode_char_array}
+\end{table}
+
+Wenn nun zwei Strings mit einer unterschiedlichen Anzahl an Zeichen an die \textit{xor\_string} Funktion übergeben werden, entsteht nach dem letzten Zeichen des kürzeren Texts eine zufällige Zeichenfolge und die längere Nachricht kann vom Client nicht mehr gelesen werden.
+
+Um das zu vermeiden füllt die Funktion \textit{cleanup\_char\_arr} die Zeichen nach dem \textbackslash 0 mit Leerzeichen auf. Um den resultierenden String weiter wie jeden andren String behandeln zu können wird zuletzt das \textbackslash 0 auf der letzten Position gesetzt.
+
+\begin{lstlisting}
+/* Sets all chars after (and including) the \0 to spaces
+* to enable all xor operations to be performed smoothly;
+* (and sets the \0 back into the last char)
+* */
+void cleanup_char_arr(char a[], unsigned int len=281) {
+	std::fill(a + strlen(a), a + len - 1, ' ');
+	a[len - 1] = '\0';
+}
+\end{lstlisting}
+
 \subsection{Zufällige Nachrichten anfordern}
 \subsection{Kommunikation}
 
