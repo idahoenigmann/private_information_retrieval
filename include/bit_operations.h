@@ -15,7 +15,7 @@ void cleanup_char_arr(char a[], unsigned int len=281) {
 char* xor_string(const char a[], const char b[], unsigned int len=281) {
     char* output = new char[len];
 
-    for (int i{}; i < len - 1; i++) {
+    for (unsigned int i{}; i < len - 1; i++) {
         char tmp = a[i] ^ b[i];
         output[i] = tmp;
     }

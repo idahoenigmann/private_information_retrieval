@@ -1,0 +1,14 @@
+option('asio',
+      type:'string',
+      value: '/home/ida/school/resources/asio-1.14.0/include/',
+      description: 'asio')
+
+option('spdlog',
+      type:'string',
+      value: '/home/ida/school/resources/spdlog-1.x/include/',
+      description: 'spdlog')
+
+option('cli',
+      type:'string',
+      value: '/home/ida/school/resources/CLI11-master/include/',
+      description: 'cli')

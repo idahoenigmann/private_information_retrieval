@@ -133,7 +133,7 @@ int main(int argc, char* argv[]) {
 
             /* add all messages besides the first one to the requested messages */
 
-            for (int i{1}; i < req_idx.size(); i++) {
+            for (unsigned int i{1}; i < req_idx.size(); i++) {
                 idx_.push_back(req_idx.at(i));
             }
 
@@ -145,7 +145,7 @@ int main(int argc, char* argv[]) {
 
             std::stringstream ss;
 
-            for (int i{0}; i < idx_.size(); ++i) {
+            for (unsigned int i{0}; i < idx_.size(); ++i) {
                 ss << idx_[i];
                 if (i != idx_.size() - 1) {
                     ss << ",";
@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
             /* receive data */
 
             string data;
-            char buffer[message_len + 1];
+            char* buffer = new char[message_len + 1];
 
             /* write messages into char buffer */
 
@@ -170,6 +170,8 @@ int main(int argc, char* argv[]) {
             /* move buffer into string */
 
             data.append(buffer, strm.gcount());
+
+            delete[] buffer;
             spdlog::debug("received data");
 
             /* copy messages viy memcpy to avoid \0 stopping the copy process */
