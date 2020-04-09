@@ -4,6 +4,7 @@
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{color}
+\usepackage{subcaption}
 
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
 \definecolor{orange}{RGB}{255,152,0}
@@ -124,6 +125,7 @@ Da sich dieses Projekt auf die sichere Kommunikation fokussiert werden die Daten
 Das Datenfile wird ausgelesen nachdem der Server gestartet wurde.
 
 \subsection{Byte-Operationen}
+\label{sec:byte_operationen}
 Um xor auf zwei Strings anwenden zu können wurde ein entsprechender Code in der Funktion \textit{xor\_string} implementiert.
 
 \begin{lstlisting}
@@ -237,6 +239,70 @@ shuffle(begin(idx_), end(idx_), rndm_engine);
 Dabei steht \textit{idx\_} für eine Kopie von \textit{req\_idx}. Damit wird der originale Vektor nicht verändert.
 
 \subsection{Kommunikation}
+Die Kommunikation zwischen allen beteiligten Einheiten wird über asio geregelt. Asio ermöglicht eine einfache Kommunikation über Streams.
 
+Die zwei typischen Kommunikationsabläufe werden in Abbildung~\ref{fig:communication_diagram} gezeigt.
+
+\begin{figure*}[t!]
+	\centering
+	\begin{subfigure}[t]{0.5\textwidth}
+		\centering
+		\includegraphics[height=7cm]{img/communication_index.png}
+		\caption{Eine Nachricht wird abgefragt. Dazu muss der Client zuerst die Anzahl der Nachrichten, sowie deren Länge wissen. Dann fragt er beide Server nach bestimmten Nachrichten, die dann xor-verknüpft zurückgesendet werden.}
+	\end{subfigure}%
+	~ 
+	\begin{subfigure}[t]{0.5\textwidth}
+		\centering
+		\includegraphics[height=7cm]{img/communication_list.png}
+		\caption{Client fragt die Nachrichtentitel ab.}
+	\end{subfigure}
+	\caption{Die zwei gewöhnlichen Kommunikationsabläufe.}
+	\label{fig:communication_diagram}
+\end{figure*}
+
+Der einzige Codeteil, bei dem der asio-stream nicht wie gewohnt, um Strings einzulesen und zu versenden, verwendet wird ist bei der Übermittlung des eigentlichen Dateninhalts. Da bei den Daten, wie in Abschnitt~\ref{sec:byte_operationen} beschrieben, das Zeichen \textbackslash 0 vorkommen kann, können hier nicht gewöhnliche Stringfunktionen verwendet werden. Stattdessen wird auf Senderseite folgender Code verwendet:
+
+\begin{lstlisting}
+/* send data */
+
+spdlog::debug("sending {}", data);
+strm.write(output, message_len + 1);
+\end{lstlisting}
+
+Auf der Empfängerseite sieht das Gegenstück folgendermaßen aus:
+
+\begin{lstlisting}
+/* receive data */
+
+string data;
+char* buffer = new char[message_len + 1];
+
+/* write messages into char buffer */
+
+while (strm.read(buffer, sizeof(buffer))) {
+	data.append(buffer, sizeof(buffer));
+}
+
+/* move buffer into string */
+
+data.append(buffer, strm.gcount());
+
+delete[] buffer;
+spdlog::debug("received data");
+\end{lstlisting}
+
+Diese beiden Codeabschnitte ermöglichen es, statt wie normalerweise Daten, deren Ende durch ein \textbackslash n oder \textbackslash 0 gekennzeichnet sind, eine fixierte Länge an Bytes zu schreiben und auszulesen. Die Anzahl an geschriebenen und ausgelesenen Bytes ist durch die Nachrichtenlänge (\textit{message\_len}) definiert. Diese wird um Eins erhöht, da die Nachricht durch ein \textbackslash 0 beendet ist.
+
+Um die erhaltenen Daten zu speichern, werden diese in einen Vector angehangen. Da die Daten später als Characterarray vorliegen müssen, werden sie hier konvertiert. Das stellt auch sicher, dass keine Probleme mit \textbackslash 0 auftreten.
+
+\begin{lstlisting}
+/* copy messages viy memcpy to avoid \0 stopping the copy process */
+
+char* answer = new char[message_len + 1];
+memcpy(answer, data.c_str(), message_len + 1);
+responses.push_back(answer);
+\end{lstlisting}
+
+Um die Daten ohne Verlust von allem, das hinter dem ersten \textbackslash 0 steht in ein Characterarray kopieren zu können, muss die Funktion \textit{memcpy} verwendet werden. Diese kopiert die Bytewerte von Beginn des \textit{data.c\_str()} Pointers auf den Speicherbereich des \textit{answer} Pointers für \textit{message\_len} + 1 Bytes.
 
 \end{document}
