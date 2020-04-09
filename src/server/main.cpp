@@ -52,7 +52,10 @@ int main(int argc, char* argv[]) {
 
         while (getline(ifstrm, line)) {
             titles.push_back(line);
-            getline(ifstrm, line);
+            if (!getline(ifstrm, line)) {
+                spdlog::error("file {} does not have the reqired format (the number of lines must be even", data_file);
+                exit(2);
+            }
             char *c = new char[message_len + 1];
             strcpy(c, line.c_str());        /* strcpy can be used since the data does not contain \0 */
             cleanup_char_arr(c, message_len + 1);       /* fill up char[] to full message len */
@@ -86,6 +89,12 @@ int main(int argc, char* argv[]) {
             /* receive data on what to send */
 
             string data;
+
+            if (!strm) {
+                spdlog::error("connection to closed unexpectedly");
+                exit(5);
+            }
+
             getline(strm, data);
 
             if (data == "req list") {        /* message titles requested */
@@ -101,39 +110,66 @@ int main(int argc, char* argv[]) {
 
             if (data == "req message cnt") {        /* message cnt requested */
                 strm << messages.size() << endl;
+
+                if (!strm) {
+                    spdlog::error("connection to closed unexpectedly");
+                    exit(5);
+                }
+
                 getline(strm, data);
             }
 
             if (data == "req message len") {        /* message len requested */
                 strm << message_len << endl;
+
+                if (!strm) {
+                    spdlog::error("connection to closed unexpectedly");
+                    exit(5);
+                }
+
                 getline(strm, data);
             }
 
             /* split message idx into integers */
 
-            size_t start = 0;
-            size_t end = 0;
+            char* output{};
 
-            end = data.find(',', start);
-            int first = stoi(data.substr(start, end - start));
-            start = end + 1;
-            end = data.find(',', start);
-            int second = stoi(data.substr(start, end - start));
+            try {
 
-            /* start the xor operation of the messages */
+                size_t start = 0;
+                size_t end = 0;
 
-            char* output{xor_string(messages.at(first), messages.at(second))};
-
-            /* retrieve and xor the rest of the messages */
-
-            while ((start = data.find_first_not_of(',', end)) != std::string::npos)
-            {
                 end = data.find(',', start);
-                int message_idx = stoi(data.substr(start, end - start));
-                output = xor_string(output, messages.at(message_idx), message_len + 1);
+                int first = stoi(data.substr(start, end - start));
+                start = end + 1;
+                end = data.find(',', start);
+                int second = stoi(data.substr(start, end - start));
+
+                /* start the xor operation of the messages */
+
+                output = xor_string(messages.at(first), messages.at(second));
+
+                /* retrieve and xor the rest of the messages */
+
+                while ((start = data.find_first_not_of(',', end)) != std::string::npos) {
+                    end = data.find(',', start);
+                    int message_idx = stoi(data.substr(start, end - start));
+                    output = xor_string(output, messages.at(message_idx), message_len + 1);
+                }
+
+            } catch (invalid_argument& e) {
+                spdlog::error("response {} could not be parsed!", data);
+                strm.close();
+                spdlog::debug("connection closed");
+                continue;
             }
 
             /* send data */
+
+            if (!strm) {
+                spdlog::error("connection to closed unexpectedly");
+                exit(5);
+            }
 
             spdlog::debug("sending {}", data);
             strm.write(output, message_len + 1);

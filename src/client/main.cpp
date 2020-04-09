@@ -69,6 +69,10 @@ int main(int argc, char* argv[]) {
             if (list) {     /* list cli option was specified */
                 strm << "req list" << endl;
                 string line{};
+                if (!strm) {
+                    spdlog::error("connection to {}:{} closed unexpectedly", endpoints.at(idx_server).first, endpoints.at(idx_server).second);
+                    exit(5);
+                }
                 getline(strm, line);
                 string end;
                 end = (char)4;      /* 4 == EOT (end of transmission) */
@@ -84,6 +88,10 @@ int main(int argc, char* argv[]) {
 
                     cout << setw(5) << idx << ": " << line << endl;
                     idx++;
+                    if (!strm) {
+                        spdlog::error("connection to {}:{} closed unexpectedly", endpoints.at(idx_server).first, endpoints.at(idx_server).second);
+                        exit(5);
+                    }
                     getline(strm, line);
                 }
 
@@ -101,19 +109,49 @@ int main(int argc, char* argv[]) {
                 /* get number of messages from server */
 
                 strm << "req message cnt" << endl;
-                string message_cnt;
-                getline(strm, message_cnt);
+                string message_cnt_string;
+
+                if (!strm) {
+                    spdlog::error("connection to {}:{} closed unexpectedly", endpoints.at(idx_server).first, endpoints.at(idx_server).second);
+                    exit(5);
+                }
+                getline(strm, message_cnt_string);
+
+                int message_cnt{};
+
+                try {
+                    message_cnt = stoi(message_cnt_string);
+                } catch (invalid_argument& e) {
+                    spdlog::error("could not parse {}, expected number", message_cnt_string);
+                    strm.close();
+                    spdlog::debug("connection closed");
+                    exit(4);
+                }
 
                 /* get message len from server */
 
                 strm << "req message len" << endl;
                 string message_len_str;
+
+                if (!strm) {
+                    spdlog::error("connection to {}:{} closed unexpectedly", endpoints.at(idx_server).first, endpoints.at(idx_server).second);
+                    exit(5);
+                }
+
                 getline(strm, message_len_str);
-                message_len = stoi(message_len_str);
+
+                try {
+                    message_len = stoi(message_len_str);
+                } catch (invalid_argument& e) {
+                    spdlog::error("could not parse {}, expected number", message_cnt_string);
+                    strm.close();
+                    spdlog::debug("connection closed");
+                    exit(4);
+                }
 
                 /* setup number distributions */
 
-                uniform_int_distribution<int> dist_idx(0, stoi(message_cnt) - 1);
+                uniform_int_distribution<int> dist_idx(0, message_cnt - 1);
                 uniform_int_distribution<int> dist_cnt(5, 10);
 
                 int cnt{dist_cnt(rndm_engine)};     /* number of messages to request */
@@ -162,6 +200,11 @@ int main(int argc, char* argv[]) {
             char* buffer = new char[message_len + 1];
 
             /* write messages into char buffer */
+
+            if (!strm) {
+                spdlog::error("connection to {}:{} closed unexpectedly", endpoints.at(idx_server).first, endpoints.at(idx_server).second);
+                exit(5);
+            }
 
             while (strm.read(buffer, sizeof(buffer))) {
                 data.append(buffer, sizeof(buffer));
