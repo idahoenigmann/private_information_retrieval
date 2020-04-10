@@ -126,7 +126,7 @@ int main(int argc, char* argv[]) {
                     spdlog::error("could not parse {}, expected number", message_cnt_string);
                     strm.close();
                     spdlog::debug("connection closed");
-                    exit(EXIT_COULD_NOT_PARSE);
+                    exit(EXIT_COULD_NOT_PARSE_RESPONSE);
                 }
 
                 /* get message len from server */
@@ -147,7 +147,7 @@ int main(int argc, char* argv[]) {
                     spdlog::error("could not parse {}, expected number", message_cnt_string);
                     strm.close();
                     spdlog::debug("connection closed");
-                    exit(EXIT_COULD_NOT_PARSE);
+                    exit(EXIT_COULD_NOT_PARSE_RESPONSE);
                 }
 
                 /* setup number distributions */

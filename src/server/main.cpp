@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
             titles.push_back(line);
             if (!getline(ifstrm, line)) {
                 spdlog::error("file {} does not have the reqired format (the number of lines must be even", data_file);
-                exit(EXIT_DATA_FILE_FORMAT);
+                exit(EXIT_ILLEGAL_FILE_FORMAT);
             }
             char *c = new char[message_len + 1];
             strcpy(c, line.c_str());        /* strcpy can be used since the data does not contain \0 */
