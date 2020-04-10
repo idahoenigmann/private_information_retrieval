@@ -3,6 +3,7 @@
 #include <spdlog/spdlog.h>
 
 #include "bit_operations.h"
+#include "exit_codes.h"
 
 using namespace std;
 using namespace asio::ip;
@@ -54,7 +55,7 @@ int main(int argc, char* argv[]) {
             titles.push_back(line);
             if (!getline(ifstrm, line)) {
                 spdlog::error("file {} does not have the reqired format (the number of lines must be even", data_file);
-                exit(2);
+                exit(EXIT_DATA_FILE_FORMAT);
             }
             char *c = new char[message_len + 1];
             strcpy(c, line.c_str());        /* strcpy can be used since the data does not contain \0 */
@@ -63,7 +64,7 @@ int main(int argc, char* argv[]) {
         }
     } else {        /* file could not be opened */
         spdlog::error("could not find {}", data_file);
-        exit(2);
+        exit(EXIT_DATA_FILE_NOT_FOUND);
     }
     ifstrm.close();
 
@@ -92,7 +93,7 @@ int main(int argc, char* argv[]) {
 
             if (!strm) {
                 spdlog::error("connection to closed unexpectedly");
-                exit(5);
+                exit(EXIT_UNEXPECTED_CLOSE);
             }
 
             getline(strm, data);
@@ -113,7 +114,7 @@ int main(int argc, char* argv[]) {
 
                 if (!strm) {
                     spdlog::error("connection to closed unexpectedly");
-                    exit(5);
+                    exit(EXIT_UNEXPECTED_CLOSE);
                 }
 
                 getline(strm, data);
@@ -124,7 +125,7 @@ int main(int argc, char* argv[]) {
 
                 if (!strm) {
                     spdlog::error("connection to closed unexpectedly");
-                    exit(5);
+                    exit(EXIT_UNEXPECTED_CLOSE);
                 }
 
                 getline(strm, data);
@@ -168,7 +169,7 @@ int main(int argc, char* argv[]) {
 
             if (!strm) {
                 spdlog::error("connection to closed unexpectedly");
-                exit(5);
+                exit(EXIT_UNEXPECTED_CLOSE);
             }
 
             spdlog::debug("sending {}", data);
@@ -186,5 +187,5 @@ int main(int argc, char* argv[]) {
 
     } while (loop);     /* loop flag was set */
 
-    return 0;
+    exit(EXIT_SUCCESS);
 }

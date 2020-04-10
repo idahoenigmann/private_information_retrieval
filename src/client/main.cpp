@@ -5,6 +5,7 @@
 #include <spdlog/spdlog.h>
 
 #include "bit_operations.h"
+#include "exit_codes.h"
 
 using namespace std;
 using namespace asio::ip;
@@ -71,7 +72,7 @@ int main(int argc, char* argv[]) {
                 string line{};
                 if (!strm) {
                     spdlog::error("connection to {}:{} closed unexpectedly", endpoints.at(idx_server).first, endpoints.at(idx_server).second);
-                    exit(5);
+                    exit(EXIT_UNEXPECTED_CLOSE);
                 }
                 getline(strm, line);
                 string end;
@@ -90,14 +91,14 @@ int main(int argc, char* argv[]) {
                     idx++;
                     if (!strm) {
                         spdlog::error("connection to {}:{} closed unexpectedly", endpoints.at(idx_server).first, endpoints.at(idx_server).second);
-                        exit(5);
+                        exit(EXIT_UNEXPECTED_CLOSE);
                     }
                     getline(strm, line);
                 }
 
                 /* exit the program without setting an error code */
 
-                exit(0);
+                exit(EXIT_SUCCESS);
             }
 
             /* create a copy of the idx vector (for shuffle) */
@@ -113,7 +114,7 @@ int main(int argc, char* argv[]) {
 
                 if (!strm) {
                     spdlog::error("connection to {}:{} closed unexpectedly", endpoints.at(idx_server).first, endpoints.at(idx_server).second);
-                    exit(5);
+                    exit(EXIT_UNEXPECTED_CLOSE);
                 }
                 getline(strm, message_cnt_string);
 
@@ -125,7 +126,7 @@ int main(int argc, char* argv[]) {
                     spdlog::error("could not parse {}, expected number", message_cnt_string);
                     strm.close();
                     spdlog::debug("connection closed");
-                    exit(4);
+                    exit(EXIT_COULD_NOT_PARSE);
                 }
 
                 /* get message len from server */
@@ -135,7 +136,7 @@ int main(int argc, char* argv[]) {
 
                 if (!strm) {
                     spdlog::error("connection to {}:{} closed unexpectedly", endpoints.at(idx_server).first, endpoints.at(idx_server).second);
-                    exit(5);
+                    exit(EXIT_UNEXPECTED_CLOSE);
                 }
 
                 getline(strm, message_len_str);
@@ -146,7 +147,7 @@ int main(int argc, char* argv[]) {
                     spdlog::error("could not parse {}, expected number", message_cnt_string);
                     strm.close();
                     spdlog::debug("connection closed");
-                    exit(4);
+                    exit(EXIT_COULD_NOT_PARSE);
                 }
 
                 /* setup number distributions */
@@ -203,7 +204,7 @@ int main(int argc, char* argv[]) {
 
             if (!strm) {
                 spdlog::error("connection to {}:{} closed unexpectedly", endpoints.at(idx_server).first, endpoints.at(idx_server).second);
-                exit(5);
+                exit(EXIT_UNEXPECTED_CLOSE);
             }
 
             while (strm.read(buffer, sizeof(buffer))) {
@@ -229,7 +230,7 @@ int main(int argc, char* argv[]) {
             spdlog::debug("connection closed");
         } else {        /* endpoint is not reachable */
             spdlog::error("Could not connect to server {}:{}!", endpoints.at(idx_server).first, endpoints.at(idx_server).second);
-            exit(1);
+            exit(EXIT_SERVER_UNREACHABLE);
         }
     }
 
@@ -251,5 +252,5 @@ int main(int argc, char* argv[]) {
         delete a;
     }
 
-    return 0;
+    exit(EXIT_SUCCESS);
 }
