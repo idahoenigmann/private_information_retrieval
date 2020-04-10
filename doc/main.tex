@@ -89,6 +89,11 @@ Beide Server schicken dann das geforderte Produkt der Nachrichten zurück.
 Der Client muss nun ebenfalls die xor-Operation auf die beiden erlangten Antworten der Server anwenden. Das Ergebnis ist die gewünschte Nachricht.
 
 \section{Möglichkeiten einer Untergrabung}
+Als Client muss man darauf acht geben die zwei Server so zu wählen, dass sie unabhängig voneinander sind. Falls die beiden Server zusammenarbeiten, können sie herausfinden welche Nachricht der Client wünscht, indem sie die beiden Listen an geforderten Nachrichten vergleichen.
+
+Mit dem gleichen Prinzip kann auch eine außenstehende Person die gewünschte Nachricht finden. Dazu muss sie beide Kommunikationskanäle abhören. Daher wird empfohlen die Kommunikation zwischen Server und Client zusätzlich zu verschlüsseln.
+
+Der Fall indem zwei Server miteinander Informationen austauschen ist der Schwachpunkt dieses Ansatzes. Es gibt keine Möglichkeit sicherzustellen, dass zwei Server nicht Daten austauschen. Man muss also auf die Betreiber der Server vertrauen.
 
 \section{Implementation}
 \subsection{Command Line Interface}
