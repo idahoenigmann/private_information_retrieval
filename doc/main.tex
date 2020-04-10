@@ -39,7 +39,9 @@
 \maketitle
 
 \begin{abstract}
+Ein Kommunikationsansatz, der es dem Server nicht ermöglicht Informationen über die von Client nachgefragten Daten zu sammeln, wird implementiert und dokumentiert. Das Ziel ist es nur möglichst wenig Daten übertragen zu müssen.
 
+Um das technisch umzusetzen wird nicht die vom Client gewünschte Nachricht angefordert und zurückgesandt, sondern eine Kombination mehrerer Nachrichten. Diese kann durch eine xor-Verknüpfung wieder in die gewünschte Nachricht zurückgewandelt werden. Dadurch müssen nur zwei Nachrichten übertragen werden.
 \end{abstract}
 
 \section{Idee}
@@ -125,12 +127,12 @@ Die Optionen bei \textit{server} sind folgende:
 \end{itemize}
 
 \subsection{Debug Ausgabe}
-Wenn die \textit{verbose} Option beim Start des Servers oder des Clients angegeben wird, werden Debug Nachrichten ausgegeben. Der Server meldet so zum Beispiel wie viele Nachrichten er aus dem Datenfile eingelesen hat, den derzeitigen Verbindungsstatus und welche Nachrichten er gesendet hat. Beim Client wird zusätzlich zur Nachricht die jewilige Veränderung des Verbindungsstatus zu den zwei Servern ausgegeben.
+Wenn die \textit{verbose} Option beim Start des Servers oder des Clients angegeben wird, werden Debug Nachrichten ausgegeben. Der Server meldet so zum Beispiel wie viele Nachrichten er aus dem Datenfile eingelesen hat, den derzeitigen Verbindungsstatus und welche Nachrichten er gesendet hat. Beim Client wird zusätzlich zur Nachricht die jeweilige Veränderung des Verbindungsstatus zu den zwei Servern ausgegeben.
 
 Die Ausgabe der Debug Nachrichten wird mit spdlog umgesetzt.
 
 \subsection{Fehler und Exitcodes}
-Es gibt eine Reihe an Fehlerfällen, die bei der Verwendung dieses Programmes auftreten können. Pro Fehlerfall ist ein Exitcode, wie in Tabelle~\ref{tab:exit_codes} festgelegt.
+Es gibt eine Reihe an Fehlerfällen, die bei der Verwendung dieses Programms auftreten können. Pro Fehlerfall ist ein Exitcode, wie in Tabelle~\ref{tab:exit_codes} festgelegt.
 
 \begin{table}[]
 	\centering
