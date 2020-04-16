@@ -156,13 +156,15 @@ int main(int argc, char* argv[]) {
                 uniform_int_distribution<int> dist_cnt(5, 10);
 
                 int cnt{dist_cnt(rndm_engine)};     /* number of messages to request */
-                for (int i{}; i < cnt; i++) {
-                    int num{message_idx};
-                    while (find(req_idx.begin(), req_idx.end(), num) != req_idx.end()) {
-                        num = dist_idx(rndm_engine);
-                    }
-                    req_idx.push_back(num);     /* message idx to request */
+
+                vector<int> possible_req_idx(message_cnt);
+                iota(begin(possible_req_idx), end(possible_req_idx), 0);
+                shuffle(begin(possible_req_idx), end(possible_req_idx), rndm_engine);
+
+                for (int j{}; j < cnt; j++) {
+                    req_idx.push_back(possible_req_idx.at(j));
                 }
+
             } else {    /* current is the second server */
 
                 /* second server also request the desired message */
