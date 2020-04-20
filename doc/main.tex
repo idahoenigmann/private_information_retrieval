@@ -62,7 +62,7 @@ In diesen beiden und vielen anderen Fällen kann eine Implementierung eines \tex
 Die in diesem Projekt implementierte Version von \textit{private information retrieval} nutzt die Eigenschaften der Exklusiv-Oder-Operation (xor).
 
 \subsection{Exlusiv-Oder-Operation (xor)}
-Die xor Operation erhält, gleich der ''und''- (Englisch ''and'') und der ''oder''- (Englisch ''or'') Operation zwei Signale als Eingang und liefert ein Signal als Ausgang. Dabei kann man das Verhalten von xor als ''entweder oder'' beschreiben. Die Wahrheitstafel in Tabelle~\ref{tab:wahrheitstafel_xor} definiert das Verhalten von xor genauer.
+Die xor Operation erhält, gleich der \glqq und \grqq - (Englisch \glqq and\grqq) und der \glqq oder\grqq - (Englisch \glqq or\grqq ) Operation zwei Wahrheitswerte (also Wahr oder Falsch) als Eingang und liefert einen Wahrheitswert zurück. Dabei kann man das Verhalten von xor als \glqq entweder oder\grqq beschreiben. Die Wahrheitstafel in Tabelle~\ref{tab:wahrheitstafel_xor} definiert das Verhalten von xor genauer.
 
 Die Eigenschaft, die dieses Projekt benötigt ist folgende: Jede Folge von Bytes $a$ mit einer anderen Folge von Bytes $b$ nach Anwendung der xor-Operation ergibt eine Folge von Bytes $c$ für die gilt, dass $c$ xor $a = b$ und $c$ xor $b = a$.
 
@@ -106,24 +106,24 @@ Um Informationen über die Verwendung der beiden Programme \textit{client} und \
 Sonstige Optionen, die bei \textit{client} spezifiziert werden können sind:
 
 \begin{itemize}
-	\item $--list$ / $-l$: gibt eine Liste aller Nachrichten Titel und deren Index aus
-	\item $--index$ / $-i$: gibt die Nachricht des Index aus
-	\item $--port1$ / $-p$: Port des ersten Server an dem die Nachrichten angefordert werden sollen
-	\item $--server1$ / $-s$: IP Adresse des ersten Server an dem die Nachrichten angefordert werden sollen
-	\item $--port2$ / $-q$: Port des zweiten Server an dem die Nachrichten angefordert werden sollen
-	\item $--server2$ / $-t$: IP Adresse des zweiten Server an dem die Nachrichten angefordert werden sollen
-	\item $--verbose$ / $-v$: gibt zusätzliche Debug Meldungen aus
+	\item \verb|--list| / \verb|-l|: gibt eine Liste aller Nachrichten Titel und deren Index aus
+	\item \verb|--index| / \verb|-i|: gibt die Nachricht des Index aus
+	\item \verb|--port1| / \verb|-p|: Port des ersten Server an dem die Nachrichten angefordert werden sollen
+	\item \verb|--server1| / \verb|-s|: IP Adresse des ersten Server an dem die Nachrichten angefordert werden sollen
+	\item \verb|--port2| / \verb|-q|: Port des zweiten Server an dem die Nachrichten angefordert werden sollen
+	\item \verb|--server2| / \verb|-t|: IP Adresse des zweiten Server an dem die Nachrichten angefordert werden sollen
+	\item \verb|--verbose| / \verb|-v|: gibt zusätzliche Debug Meldungen aus
 \end{itemize}
 
 \noindent
 Die Optionen bei \textit{server} sind folgende:
 
 \begin{itemize}
-	\item $--port$ / $-p$: Port, an dem die Verbindung aufgebaut werden soll
-	\item $--verbose$ / $-v$: gibt Debug Meldungen aus
-	\item $--loop$ / $-l$: lässt den Server in einer Schleife laufen
-	\item $--file$ / $-f$: Datei, in der die Nachrichten gespeichert sind
-	\item $--size$ / $-s$: maximale Länge einer Nachricht
+	\item \verb|--port| / \verb|-p|: Port, an dem die Verbindung aufgebaut werden soll
+	\item \verb|--verbose| / \verb|-v|: gibt Debug Meldungen aus
+	\item \verb|--loop| / \verb|-l|: lässt den Server in einer Schleife laufen
+	\item \verb|--file| / \verb|-f|: Datei, in der die Nachrichten gespeichert sind
+	\item \verb|--size| / \verb|-s|: maximale Länge einer Nachricht
 \end{itemize}
 
 \subsection{Debug Ausgabe}
@@ -234,7 +234,7 @@ void cleanup_char_arr(char a[], unsigned int len=281) {
 \end{lstlisting}
 
 \subsection{Zufällige Nachrichten anfordern}
-Um die Sicherheit des Client zu garantieren müssen zufällige Nachrichten angefordert werden. Weiters muss die Anzahl der Nachrichten zufällig sein, da sonst ein Server feststellen könnte, das eine der von ihm verlangten Nachrichten, die ''richtige'' ist. Zusätzlich müssen die Nachrichten in einer zufälligen Reihenfolge angefordert werden. Wenn zum Beispiel die ''richtige'' Nachricht immer die erste wäre, hätte der Server ein leichtes Spiel.
+Um die Sicherheit des Client zu garantieren müssen zufällige Nachrichten angefordert werden. Weiters muss die Anzahl der Nachrichten zufällig sein, da sonst ein Server feststellen könnte, das eine der von ihm verlangten Nachrichten, die \glqq richtige\grqq ist. Zusätzlich müssen die Nachrichten in einer zufälligen Reihenfolge angefordert werden. Wenn zum Beispiel die \glqq richtige\grqq Nachricht immer die erste wäre, hätte der Server ein leichtes Spiel.
 
 Um all diese Anforderungen umzusetzten wird in diesem Projekt die \textit{random}-Bibliothek verwendet.
 
