@@ -13,8 +13,8 @@ A in depth describtion can be found [here](https://dl.acm.org/doi/pdf/10.1145/29
 Follow the these steps:
 
 ```
-git clone https://github.com/idahoenigmann/hoenigmann.git
-cd hoenigmann
+git clone https://github.com/idahoenigmann/private_information_retrieval.git
+cd private_information_retrieval/
 mkdir build && cd build
 cmake ..
 make
@@ -23,14 +23,14 @@ make
 To test communication try:
 
 ```
-server -p 1234 -f ../src/server/data.txt &
-server -p 1235 -f ../src/server/data.txt &
-client -i 1
+./server -p 1234 -f ../src/server/data.txt &
+./server -p 1235 -f ../src/server/data.txt &
+./client -i 0
 ```
 
 To get more information on the command line parameters type:
 
 ```
-client --help
-server --help
+./client --help
+./server --help
 ```
