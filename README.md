@@ -4,9 +4,9 @@ In most applications servers store information of requests made by clients. Whil
 
 ## How does this work?
 
-One simple way of accieving private information retrieval is to have the server simply send all messages to the client. This however is not desired as the amount of network traffic needed is the number of bytes of data the server stores (aka way to much). In an effort to reduce the number of bytes sent the client request the product of the xor operation of a random number of messages the server stores. By requesting the same xor product excluding the desired message from a different server the two results, after performing the xor operation again, return the desired message.
+One simple way of achieving private information retrieval is to have the server simply send all messages to the client. This however is not desired as the amount of network traffic needed is the number of bytes of data the server stores (aka way too much). In an effort to reduce the number of bytes sent the client request the product of the xor operation of a random number of messages the server stores. By requesting the same xor product excluding the desired message from a different server the two results, after performing the xor operation again, return the desired message.
 
-A in depth describtion can be found [here](https://dl.acm.org/doi/pdf/10.1145/293347.293350) or (in video form) [here](https://media.ccc.de/v/36c3-10565-what_s_left_for_private_messaging#t=2402).
+An in depth description can be found [here](https://dl.acm.org/doi/pdf/10.1145/293347.293350) or (in video form) [here](https://media.ccc.de/v/36c3-10565-what_s_left_for_private_messaging#t=2402).
 
 ## Installation
 
